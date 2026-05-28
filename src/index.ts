@@ -1,3 +1,2 @@
-export function greet(name: string): string {
-  return `Hello, ${name}!`;
-}
+// Public API — populated as phases are implemented
+export {};

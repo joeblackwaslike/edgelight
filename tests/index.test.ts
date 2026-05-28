@@ -1,8 +1,6 @@
-import { describe, expect, it } from 'vitest';
-import { greet } from '@/index.js';
+import { describe, it } from 'vitest';
 
-describe('greet', () => {
-  it('returns greeting with name', () => {
-    expect(greet('world')).toBe('Hello, world!');
-  });
+// Public API tests — populated as phases are implemented
+describe('public API', () => {
+  it.todo('placeholder');
 });
