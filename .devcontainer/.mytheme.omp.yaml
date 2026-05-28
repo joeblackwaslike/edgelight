@@ -1,0 +1,102 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json
+version: 3
+final_space: true
+blocks:
+- type: prompt
+  alignment: left
+  segments:
+  - type: session
+    template: "{{ .UserName }} "
+    foreground: lightYellow
+    style: plain
+    options:
+      cache_duration: none
+  - type: path
+    style: plain
+    template: "<#ffffff>in</> {{ .Path }} "
+    foreground: cyan
+    options:
+      cache_duration: none
+      mixed_threshold: 12
+      style: full
+      folder_icon: " "
+  - type: git
+    style: plain
+    template: "<#ffffff>on</> {{ .HEAD }} {{ if .BranchStatus }}{{ .BranchStatus }}{{ end }}{{ if .Staging.Changed }}  {{ .Staging.String }}{{ end }}{{ if gt .StashCount 0}}  {{ .StashCount }}{{ end }}{{ if gt .WorktreeCount 0}}  {{ .WorktreeCount }}{{ end }}"
+    foreground: "#ff94df"
+    # template: "{{ .HEAD }}{{if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }}  {{ .Working.String }}{{ end }}{{ if and (.Staging.Changed) (.Working.Changed) }} |{{ end }}{{ if .Staging.Changed }}  {{ .Staging.String }}{{ end }}{{ if gt .StashCount 0}}  {{ .StashCount }}{{ end }}{{ if gt .WorktreeCount 0}}  {{ .WorktreeCount }}{{ end }}"
+    options:
+      branch_icon: "<#ff94df> </>"
+      no_commits_icon: " "
+      cache_duration: none
+      fetch_stash: true
+      fetch_status: true
+      fetch_push_status: true
+      fetch_upstream_icon: true
+      fetch_bare_info: true
+
+      display_status: true
+      display_upstream_icon: true
+      display_stash_count: true
+      source: cli
+      mapped_branches:
+        feat/*: "🚀 "
+        bug/*: "🐛 "
+  - type: python
+    style: plain
+    template: "  {{ if .Error }}{{ .Error }}{{ else }}{{ if .Venv }}({{ .Venv }}) {{ end }}{{ .Full }}{{ end }}"
+    foreground: "#FFD43B"
+    options:
+      cache_duration: none
+  - type: node
+    style: plain
+    template: "  {{ if .PackageManagerIcon }}{{ .PackageManagerIcon }} {{ end }}{{ .Full }}"
+    foreground: "#59C9A5"
+    options:
+      fetch_package_manager: true
+      npm_icon: " <#cc3a3a></> "
+      yarn_icon: " <#348cba></>"
+  - type: java
+    style: plain
+    foreground: "#007396"
+    template: "  {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }}"
+  - type: go
+    style: plain
+    foreground: "#00ADD8"
+    template: " {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }}"
+  - type: ruby
+    style: plain
+    foreground: "#CC342D"
+    template: "  {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }}"
+  - type: rust
+    style: plain
+    foreground: "#B7410E"
+    template: "  {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }}"
+  - type: lua
+    style: plain
+    foreground: "#000080"
+    template: "  {{ .Full }}"
+  - type: mojo
+    style: plain
+    foreground: "#F70D1A"
+    template: " \U0001F525 {{ .Full }}"
+
+- type: prompt
+  alignment: left
+  newline: true
+  segments:
+  - type: root
+    style: plain
+    template: "<parentBackground></>  "
+  - type: session
+    style: plain
+    template: "{{ if .SSHSession }} {{ end }}{{ .HostName }} "
+    foreground: "#ffffff"
+    options:
+      cache_duration: none
+  - type: text
+    style: plain
+    template: ❯
+    foreground: lightGreen
+    options:
+      cache_duration: none
