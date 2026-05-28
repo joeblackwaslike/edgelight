@@ -113,6 +113,12 @@ export default tseslint.config(
     },
   },
   {
+    files: ['src/**/__tests__/**/*.ts', 'src/**/*.test.ts'],
+    rules: {
+      'import-x/no-relative-parent-imports': 'off',
+    },
+  },
+  {
     ignores: ['node_modules/**', 'dist/**', 'coverage/**', '*.config.mjs', 'vitest.config.ts'],
   },
 );
