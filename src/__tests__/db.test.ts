@@ -44,3 +44,14 @@ describe('openDb', () => {
     await closeDb(secondDb);
   });
 });
+
+describe('db.run concurrency guard', () => {
+  it('throws EdgeLiteConcurrencyError when called while in flight', async () => {
+    const db = (await openDb(TEST_DB, TEST_SCHEMA)) as InternalDb;
+    const inFlightDb = db as unknown as Record<string, unknown>;
+    inFlightDb.inFlight = true;
+    await expect(db.run({})).rejects.toThrow('db.run() called while another query is in flight');
+    inFlightDb.inFlight = false;
+    await closeDb(db);
+  });
+});
