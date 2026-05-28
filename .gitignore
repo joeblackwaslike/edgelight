@@ -17,3 +17,14 @@ build/
 # Personal scratchpad (not for version control)
 docs/backlog.md
 docs/handoff.md
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+
+# PGlite data directories (never commit runtime data)
+*-db/
+
+# Generated query builder — rebuilt from schema.esdl via `edgelite codegen`
+dbschema/edgelite.ts
