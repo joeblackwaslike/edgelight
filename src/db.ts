@@ -15,6 +15,7 @@ export async function openDb(
     extensions: { vector },
   });
 
+  await pglite.exec('CREATE EXTENSION IF NOT EXISTS vector');
   await ensureMigrationsTable(pglite);
 
   const db: InternalDb = new DbImpl(pglite, dbPath, schemaPath, {
