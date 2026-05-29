@@ -3,7 +3,7 @@ export type ScalarKind = 'str' | 'int64' | 'bool' | 'json';
 export interface PropertyNode {
   kind: 'property';
   name: string;
-  type: ScalarKind | VectorTypeNode;
+  type: string | VectorTypeNode;
   required: boolean;
   default?: string | number | boolean;
 }
