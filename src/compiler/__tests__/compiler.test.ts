@@ -1,58 +1,54 @@
 import { describe, expect, it } from 'vitest';
-import type { PropertyNode, SdlAst } from '../../parser/ast.js';
+import type {
+  ExclusiveConstraintNode,
+  IndexNode,
+  LinkNode,
+  PropertyNode,
+  SdlAst,
+} from '../../parser/ast.js';
 import { compileSdl } from '../index.js';
 
-function compileType(props: PropertyNode[]): string | undefined {
-  return compileSdl({
+interface AstOverrides {
+  name?: string;
+  properties?: PropertyNode[];
+  links?: LinkNode[];
+  indexes?: IndexNode[];
+  constraints?: ExclusiveConstraintNode[];
+}
+
+function makeAst(overrides: AstOverrides = {}): SdlAst {
+  return {
     enums: [],
     types: [
       {
         kind: 'object_type',
-        name: 'Node',
-        properties: props,
-        links: [],
-        indexes: [],
-        constraints: [],
+        name: overrides.name ?? 'Node',
+        properties: overrides.properties ?? [],
+        links: overrides.links ?? [],
+        indexes: overrides.indexes ?? [],
+        constraints: overrides.constraints ?? [],
       },
     ],
-  }).find((s) => s.includes('CREATE TABLE'));
+  };
+}
+
+function findTable(ast: SdlAst): string | undefined {
+  return compileSdl(ast).find((s) => s.startsWith('CREATE TABLE'));
+}
+
+function compileType(props: PropertyNode[]): string | undefined {
+  return findTable(makeAst({ properties: props }));
 }
 
 describe('compileSdl — CREATE TABLE', () => {
   it('emits CREATE TABLE for each ObjectType with id column', () => {
-    const ast: SdlAst = {
-      enums: [],
-      types: [
-        {
-          kind: 'object_type',
-          name: 'Node',
-          properties: [],
-          links: [],
-          indexes: [],
-          constraints: [],
-        },
-      ],
-    };
-    const sql = compileSdl(ast);
+    const sql = compileSdl(makeAst());
     expect(sql.some((s) => s.includes('CREATE TABLE nodes'))).toBe(true);
     expect(sql.some((s) => s.includes('id TEXT PRIMARY KEY'))).toBe(true);
   });
 
   it('table name is pluralized lowercase', () => {
-    const ast: SdlAst = {
-      enums: [],
-      types: [
-        {
-          kind: 'object_type',
-          name: 'Edge',
-          properties: [],
-          links: [],
-          indexes: [],
-          constraints: [],
-        },
-      ],
-    };
-    const sql = compileSdl(ast);
+    const sql = compileSdl(makeAst({ name: 'Edge' }));
     expect(sql.some((s) => s.includes('CREATE TABLE edges'))).toBe(true);
   });
 });
@@ -109,5 +105,24 @@ describe('compileSdl — property types', () => {
       { kind: 'property', name: 'content', type: 'str', required: true, default: '' },
     ]);
     expect(sql).toContain("content TEXT NOT NULL DEFAULT ''");
+  });
+});
+
+describe('compileSdl — links', () => {
+  it('link parent: Node → parent_id TEXT REFERENCES nodes(id)', () => {
+    const ast = makeAst({
+      links: [{ kind: 'link', name: 'parent', targetType: 'Node', required: false }],
+    });
+    const sql = findTable(ast);
+    expect(sql).toContain('parent_id TEXT REFERENCES nodes(id)');
+  });
+
+  it('required link: src_id TEXT NOT NULL REFERENCES nodes(id)', () => {
+    const ast = makeAst({
+      name: 'Edge',
+      links: [{ kind: 'link', name: 'src', targetType: 'Node', required: true }],
+    });
+    const sql = findTable(ast);
+    expect(sql).toContain('src_id TEXT NOT NULL REFERENCES nodes(id)');
   });
 });
