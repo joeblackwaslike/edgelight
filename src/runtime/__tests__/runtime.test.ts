@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { FieldRef, SelectBuilder } from '../../codegen/builders.js';
 import { compileQuery } from '../compile.js';
+import { mapResult } from '../map.js';
 
 function field(table: string, column: string): FieldRef {
   return { kind: 'field', table, column };
@@ -47,5 +48,32 @@ describe('compileQuery — SELECT', () => {
     const { sql } = compileQuery(query);
     expect(sql).toContain('LEFT JOIN nodes p ON p.id = n.parent_id');
     expect(sql).toContain('p.id AS parent__id');
+  });
+});
+
+describe('mapResult', () => {
+  it('maps flat rows to objects', () => {
+    const rows = [{ id: 'abc', status: 'live' }];
+    const result = mapResult(rows, { id: true, status: true });
+    expect(result).toEqual([{ id: 'abc', status: 'live' }]);
+  });
+
+  it('reconstructs nested parent from parent__id column', () => {
+    const row = Object.fromEntries([
+      ['id', 'abc'],
+      ['status', 'live'],
+      ['parent__id', 'xyz'],
+    ]);
+    const result = mapResult([row], { id: true, status: true, parent: { id: true } });
+    expect(result).toEqual([{ id: 'abc', status: 'live', parent: { id: 'xyz' } }]);
+  });
+
+  it('maps null parent__id to null parent', () => {
+    const row = Object.fromEntries([
+      ['id', 'abc'],
+      ['parent__id', null],
+    ]);
+    const result = mapResult([row], { id: true, parent: { id: true } });
+    expect((result[0] as Record<string, unknown>).parent).toBeNull();
   });
 });
