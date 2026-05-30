@@ -126,3 +126,19 @@ describe('compileSdl — links', () => {
     expect(sql).toContain('src_id TEXT NOT NULL REFERENCES nodes(id)');
   });
 });
+
+describe('compileSdl — FTS index', () => {
+  it('emits fts_vector TSVECTOR column, GIN index, and trigger', () => {
+    const ast = makeAst({
+      properties: [{ kind: 'property', name: 'content', type: 'str', required: true }],
+      indexes: [{ kind: 'index_fts', property: 'content' }],
+    });
+    const statements = compileSdl(ast);
+    const ftsCol = statements.find((s) => s.includes('fts_vector TSVECTOR'));
+    const ginIndex = statements.find((s) => s.includes('USING GIN') && s.includes('fts_vector'));
+    const trigger = statements.find((s) => s.includes('nodes_fts_trigger'));
+    expect(ftsCol).toBeDefined();
+    expect(ginIndex).toBeDefined();
+    expect(trigger).toBeDefined();
+  });
+});
