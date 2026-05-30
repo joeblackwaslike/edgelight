@@ -1,18 +1,23 @@
 // eslint-disable-next-line import-x/no-relative-parent-imports
 import { EdgeLiteParseError } from '@/errors.js';
-import { generate } from 'peggy';
+import peggy from 'peggy';
 import type { LinkNode, ObjectTypeNode, PropertyNode, ScalarEnumNode, SdlAst } from './ast.js';
 import { GRAMMAR } from './grammar.js';
 
 // Parser is generated once at module load from the embedded grammar string.
-const parser = generate(GRAMMAR);
+// eslint-disable-next-line import-x/no-named-as-default-member
+const parser = peggy.generate(GRAMMAR);
 
 function resolveLinksAndProperties(types: ObjectTypeNode[], enumNames: Set<string>): void {
   for (const type of types) {
     const links: LinkNode[] = [];
     const properties: PropertyNode[] = [];
     for (const property of type.properties) {
-      if (typeof property.type === 'string' && /^[A-Z]/.test(property.type) && !enumNames.has(property.type)) {
+      if (
+        typeof property.type === 'string' &&
+        /^[A-Z]/.test(property.type) &&
+        !enumNames.has(property.type)
+      ) {
         links.push({
           kind: 'link',
           name: property.name,
@@ -33,7 +38,8 @@ export function parseSdl(source: string): SdlAst {
   try {
     items = parser.parse(source) as unknown[];
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : `Parse error: ${JSON.stringify(error)}`;
+    const message =
+      error instanceof Error ? error.message : `Parse error: ${JSON.stringify(error)}`;
     throw new EdgeLiteParseError(message);
   }
 
