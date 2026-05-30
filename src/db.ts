@@ -1,7 +1,9 @@
 import { mkdirSync } from 'node:fs';
 import { PGlite } from '@electric-sql/pglite';
 import { vector } from '@electric-sql/pglite/vector';
-import { EdgeLiteConcurrencyError, EdgeLiteRuntimeError } from './errors.js';
+import type { Query } from './codegen/builders.js';
+import { EdgeLiteConcurrencyError } from './errors.js';
+import { execute } from './runtime/execute.js';
 import type { Db, DbOptions, InternalDb } from './types.js';
 
 export async function openDb(
@@ -52,21 +54,14 @@ class DbImpl implements InternalDb {
     this.options = options;
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async run<T>(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _query: unknown,
-  ): Promise<T> {
+   
+  async run<T>(query: unknown): Promise<T> {
     if (this.inFlight) {
       throw new EdgeLiteConcurrencyError('db.run() called while another query is in flight');
     }
     this.inFlight = true;
     try {
-      // Runtime SQL compilation wired in Phase 5
-      throw new Error('Not implemented — wire runtime in Phase 5');
-    } catch (error) {
-      if (error instanceof EdgeLiteConcurrencyError) throw error;
-      throw new EdgeLiteRuntimeError(String(error), error);
+      return await execute<T>(this.pglite, query as Query<T>);
     } finally {
       this.inFlight = false;
     }
