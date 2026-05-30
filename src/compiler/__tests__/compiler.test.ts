@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import type {
   ExclusiveConstraintNode,
@@ -6,7 +9,10 @@ import type {
   PropertyNode,
   SdlAst,
 } from '../../parser/ast.js';
+import { parseSdl } from '../../parser/index.js';
 import { compileSdl } from '../index.js';
+
+const FIXTURE_DIR = path.dirname(fileURLToPath(import.meta.url));
 
 interface AstOverrides {
   name?: string;
@@ -140,5 +146,36 @@ describe('compileSdl — FTS index', () => {
     expect(ftsCol).toBeDefined();
     expect(ginIndex).toBeDefined();
     expect(trigger).toBeDefined();
+  });
+});
+
+describe('compileSdl — exclusive constraint', () => {
+  it('exclusive on (src, dst, kind) → UNIQUE(src_id, dst_id, kind)', () => {
+    const ast = makeAst({
+      name: 'Edge',
+      links: [
+        { kind: 'link', name: 'src', targetType: 'Node', required: true },
+        { kind: 'link', name: 'dst', targetType: 'Node', required: true },
+      ],
+      constraints: [{ kind: 'constraint_exclusive', properties: ['src', 'dst', 'kind'] }],
+    });
+    const sql = findTable(ast);
+    expect(sql).toContain('UNIQUE(src_id, dst_id, kind)');
+  });
+});
+
+describe('compileSdl — full memtree schema', () => {
+  it('compiles memtree schema to valid DDL without throwing', () => {
+    const source = readFileSync(
+      path.join(FIXTURE_DIR, '../../parser/__tests__/fixtures/memtree.esdl'),
+      'utf8',
+    );
+    const ast = parseSdl(source);
+    const statements = compileSdl(ast);
+
+    expect(statements.some((s) => s.includes('CREATE TABLE nodes'))).toBe(true);
+    expect(statements.some((s) => s.includes('CREATE TABLE edges'))).toBe(true);
+    expect(statements.some((s) => s.includes('fts_vector TSVECTOR'))).toBe(true);
+    expect(statements.some((s) => s.includes('UNIQUE(src_id, dst_id, kind)'))).toBe(true);
   });
 });
