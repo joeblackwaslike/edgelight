@@ -22,7 +22,16 @@
     "@electric-sql/pglite": "^0.2.0",
     "peggy": "^5.1.0"
   },
-  "files": ["dist"],
+  "files": ["dist", "cli", "README.md", "LICENSE"],
+  "keywords": [
+    "edgedb",
+    "pglite",
+    "postgres",
+    "query-builder",
+    "schema",
+    "migrations",
+    "typescript"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
@@ -40,7 +49,7 @@
     "docs:serve": "docusaurus serve",
     "docs:clear": "docusaurus clear",
     "prepare": "husky",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "pnpm build && pnpm typecheck"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
