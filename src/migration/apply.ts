@@ -29,14 +29,21 @@ export async function applyMigrations(
       continue;
     }
 
-    // Strip comment-only lines before executing SQL
-    const sql = content.replaceAll(/^--[^\n]*\n/gm, '').trim();
-    await pglite.exec(sql);
-    await pglite.query('INSERT INTO _edgelite_migrations (name, applied_at) VALUES ($1, $2)', [
-      file.replace('.sql', ''),
-      Date.now(),
-    ]);
-    appliedNames.push(file);
+    const bareName = file.replaceAll('.sql', '');
+
+    await pglite.exec('BEGIN');
+    try {
+      await pglite.exec(content.trim());
+      await pglite.query('INSERT INTO _edgelite_migrations (name, applied_at) VALUES ($1, $2)', [
+        bareName,
+        Date.now(),
+      ]);
+      await pglite.exec('COMMIT');
+    } catch (error) {
+      await pglite.exec('ROLLBACK');
+      throw error;
+    }
+    appliedNames.push(bareName);
   }
 
   return appliedNames;
@@ -53,7 +60,11 @@ export function getMigrationFiles(migrationsDir: string): string[] {
   try {
     return readdirSync(migrationsDir)
       .filter((f) => f.endsWith('.sql'))
-      .sort((a, b) => a.localeCompare(b));
+      .sort((a, b) => {
+        if (a < b) return -1;
+        if (a > b) return 1;
+        return 0;
+      });
   } catch {
     return [];
   }
