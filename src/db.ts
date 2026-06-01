@@ -28,7 +28,7 @@ export async function openDb(
   } else {
     const applied = await getAppliedMigrations(pglite);
     const files = getMigrationFiles(migrationsDir);
-    const pending = files.filter((f) => !applied.has(f.replaceAll('.sql', '')));
+    const pending = files.filter((f) => !applied.has(f.replace(/\.sql$/, '')));
     if (pending.length > 0) {
       throw new EdgeLiteSchemaError(
         `Unapplied migrations detected: ${pending.join(', ')}. Run \`edgelite migration apply\` or open with { autoMigrate: true }.`,
