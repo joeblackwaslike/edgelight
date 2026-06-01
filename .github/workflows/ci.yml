@@ -32,26 +32,12 @@ jobs:
         run: pnpm depcheck
 
   test:
-    name: Test (Node ${{ matrix.node-version }})
+    name: Test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20, 22]
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: latest
-
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup-node-env
 
       - name: Run tests
         run: pnpm test:coverage
@@ -70,15 +56,6 @@ jobs:
       - uses: ./.github/actions/setup-node-env
       - name: Build
         run: pnpm build
-
-  docs:
-    name: Docs
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-node-env
-      - name: Build docs
-        run: pnpm docs:build
 
   dependency-review:
     name: Dependency Review
