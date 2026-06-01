@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, renameSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import type { SchemaChange } from './diff.js';
 
@@ -34,7 +34,9 @@ export function generateMigrationFile(
   const filename = `${seq}-${hash}.sql`;
   const filepath = path.join(migrationsDir, filename);
 
-  writeFileSync(filepath, sqlLines.join('\n'), 'utf8');
+  const tmpPath = `${filepath}.tmp`;
+  writeFileSync(tmpPath, sqlLines.join('\n'), 'utf8');
+  renameSync(tmpPath, filepath);
   return filepath;
 }
 
@@ -53,7 +55,8 @@ function changeToSql(change: SchemaChange): string {
       return `ALTER TABLE ${change.tableName} DROP COLUMN ${change.columnName};`;
     }
     default: {
-      return `-- ${change.kind} (not yet implemented)`;
+      const _exhaustive: never = change;
+      throw new Error(`changeToSql: unhandled change kind "${(_exhaustive as SchemaChange).kind}"`);
     }
   }
 }
