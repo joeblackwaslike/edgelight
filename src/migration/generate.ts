@@ -55,9 +55,14 @@ function changeToSql(change: SchemaChange): string {
     case 'drop_column': {
       return `ALTER TABLE ${change.tableName} DROP COLUMN ${change.columnName};`;
     }
+    case 'add_index':
+    case 'add_constraint': {
+      if (change.sql) return change.sql;
+      throw new Error(`changeToSql: ${change.kind} requires a sql field`);
+    }
     default: {
-      const _exhaustive: never = change;
-      throw new Error(`changeToSql: unhandled change kind "${(_exhaustive as SchemaChange).kind}"`);
+      const _exhaustive: never = change.kind;
+      throw new Error(`changeToSql: unhandled change kind "${String(_exhaustive)}"`);
     }
   }
 }

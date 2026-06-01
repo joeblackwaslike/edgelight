@@ -68,13 +68,17 @@ function selectNodes(shape: SelectShape, filter?: FilterExpr): SelectBuilder<Row
     kind: 'select',
     table: NODES,
     shape,
-    filter,
+    ...(filter === undefined ? {} : { filter }),
     _type: undefined as unknown as Row[],
   };
 }
 
 function countNodes(filter?: FilterExpr): CountBuilder {
-  return { kind: 'count', table: NODES, filter };
+  return {
+    kind: 'count',
+    table: NODES,
+    ...(filter === undefined ? {} : { filter }),
+  };
 }
 
 function updateNodes(filter: FilterExpr, set: Row): UpdateBuilder<Row> {
