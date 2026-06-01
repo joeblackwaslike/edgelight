@@ -16,12 +16,12 @@ export interface DbSchema {
 }
 
 export async function introspectDb(pglite: PGlite): Promise<DbSchema> {
-  const tablesResult = await pglite.query<{ tableName: string }>(String.raw`
+  const tablesResult = await pglite.query<{ tableName: string }>(`
     SELECT table_name AS "tableName"
     FROM information_schema.tables
     WHERE table_schema = 'public'
       AND table_type = 'BASE TABLE'
-      AND table_name NOT LIKE '\_edgelite%'
+      AND LEFT(table_name, 9) != '_edgelite'
     ORDER BY table_name
   `);
 

@@ -32,4 +32,12 @@ describe('introspectDb', () => {
     expect(nodesTable.columns.map((c) => c.name)).toContain('id');
     expect(nodesTable.columns.map((c) => c.name)).toContain('content');
   });
+
+  it('excludes _edgelite_* internal tables', async () => {
+    await pglite.exec(
+      'CREATE TABLE IF NOT EXISTS _edgelite_migrations (name TEXT PRIMARY KEY, applied_at BIGINT NOT NULL)',
+    );
+    const schema = await introspectDb(pglite);
+    expect(schema.tables.map((t) => t.name)).not.toContain('_edgelite_migrations');
+  });
 });
