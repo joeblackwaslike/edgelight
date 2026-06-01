@@ -57,7 +57,7 @@ describe('db.run concurrency guard', () => {
 });
 
 describe('autoMigrate option', () => {
-  it('accepts autoMigrate: true without throwing (stub — full wiring in Phase 6)', async () => {
+  it('accepts autoMigrate: true without throwing when no pending migrations exist', async () => {
     const db = await openDb(TEST_DB, TEST_SCHEMA, { autoMigrate: true });
     expect(db).toBeDefined();
     await closeDb(db);
