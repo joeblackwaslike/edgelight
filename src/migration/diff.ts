@@ -1,5 +1,6 @@
 /* eslint-disable import-x/no-relative-parent-imports */
 import type { PGlite } from '@electric-sql/pglite';
+import { compileSdl } from '../compiler/index.js';
 import type { SdlAst } from '../parser/ast.js';
 
 export interface DbColumn {
@@ -121,10 +122,12 @@ export function diffSdlVsDb(ast: SdlAst, db: DbSchema): SchemaChange[] {
     const table = tableNameFor(type.name);
     const dbTable = dbTableByName.get(table);
     if (dbTable === undefined) {
+      const typeStatements = compileSdl({ enums: ast.enums, types: [type] });
       changes.push({
         kind: 'add_table',
         typeName: type.name,
         tableName: table,
+        sql: typeStatements.map((s) => (s.trimEnd().endsWith(';') ? s : `${s};`)).join('\n'),
         destructive: false,
       });
       continue;
