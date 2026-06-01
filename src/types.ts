@@ -2,6 +2,8 @@ import type { PGlite } from '@electric-sql/pglite';
 
 export interface DbOptions {
   autoMigrate?: boolean;
+  /** Internal — skip the pending-migrations check (used by `migration create`). */
+  skipMigrationCheck?: boolean;
 }
 
 /**

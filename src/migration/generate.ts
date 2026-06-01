@@ -43,7 +43,10 @@ export function generateMigrationFile(
 function changeToSql(change: SchemaChange): string {
   switch (change.kind) {
     case 'add_table': {
-      return `CREATE TABLE ${change.tableName} (id TEXT PRIMARY KEY);`;
+      return [
+        `CREATE TABLE ${change.tableName} (id TEXT PRIMARY KEY);`,
+        `-- columns for ${change.tableName} are added below via ALTER TABLE`,
+      ].join('\n');
     }
     case 'drop_table': {
       return `DROP TABLE ${change.tableName};`;

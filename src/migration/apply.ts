@@ -14,7 +14,7 @@ export async function applyMigrations(
   const applied = await getAppliedMigrations(pglite);
   const files = getMigrationFiles(migrationsDir);
   // applied contains names WITHOUT .sql; files contain names WITH .sql — strip before comparing
-  const pending = files.filter((f) => !applied.has(f.replace('.sql', '')));
+  const pending = files.filter((f) => !applied.has(f.replace(/\.sql$/, '')));
 
   const appliedNames: string[] = [];
 
@@ -29,20 +29,15 @@ export async function applyMigrations(
       continue;
     }
 
-    const bareName = file.replaceAll('.sql', '');
+    const bareName = file.replace(/\.sql$/, '');
 
-    await pglite.exec('BEGIN');
-    try {
-      await pglite.exec(content.trim());
-      await pglite.query('INSERT INTO _edgelite_migrations (name, applied_at) VALUES ($1, $2)', [
+    await pglite.transaction(async (tx) => {
+      await tx.exec(content.trim());
+      await tx.query('INSERT INTO _edgelite_migrations (name, applied_at) VALUES ($1, $2)', [
         bareName,
         Date.now(),
       ]);
-      await pglite.exec('COMMIT');
-    } catch (error) {
-      await pglite.exec('ROLLBACK');
-      throw error;
-    }
+    });
     appliedNames.push(bareName);
   }
 

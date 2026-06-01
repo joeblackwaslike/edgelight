@@ -38,7 +38,7 @@ function runCodegen(): void {
 }
 
 async function runMigrationCreate(): Promise<void> {
-  const db = await openDb(dbPath, schemaPath);
+  const db = await openDb(dbPath, schemaPath, { skipMigrationCheck: true });
   try {
     const pglite = (db as unknown as InternalDb).pglite;
     const dbSchema = await introspectDb(pglite);

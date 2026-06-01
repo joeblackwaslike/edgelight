@@ -23,21 +23,24 @@ export async function openDb(
   await ensureMigrationsTable(pglite);
 
   const migrationsDir = path.join(path.dirname(schemaPath), 'migrations');
-  if (options.autoMigrate) {
-    await applyMigrations(pglite, migrationsDir, { allowDestructive: false });
-  } else {
-    const applied = await getAppliedMigrations(pglite);
-    const files = getMigrationFiles(migrationsDir);
-    const pending = files.filter((f) => !applied.has(f.replace(/\.sql$/, '')));
-    if (pending.length > 0) {
-      throw new EdgeLiteSchemaError(
-        `Unapplied migrations detected: ${pending.join(', ')}. Run \`edgelite migration apply\` or open with { autoMigrate: true }.`,
-      );
+  if (!options.skipMigrationCheck) {
+    if (options.autoMigrate) {
+      await applyMigrations(pglite, migrationsDir, { allowDestructive: false });
+    } else {
+      const applied = await getAppliedMigrations(pglite);
+      const files = getMigrationFiles(migrationsDir);
+      const pending = files.filter((f) => !applied.has(f.replace(/\.sql$/, '')));
+      if (pending.length > 0) {
+        throw new EdgeLiteSchemaError(
+          `Unapplied migrations detected: ${pending.join(', ')}. Run \`edgelite migration apply\` or open with { autoMigrate: true }.`,
+        );
+      }
     }
   }
 
   const db: InternalDb = new DbImpl(pglite, dbPath, schemaPath, {
     autoMigrate: options.autoMigrate ?? false,
+    skipMigrationCheck: options.skipMigrationCheck ?? false,
   });
 
   return db;
