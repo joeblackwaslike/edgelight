@@ -1,5 +1,9 @@
 # EdgeLite
 
+[![npm](https://img.shields.io/npm/v/edgelite)](https://npmjs.com/package/edgelite)
+[![CI](https://github.com/joeblackwaslike/edgelight/actions/workflows/ci.yml/badge.svg)](https://github.com/joeblackwaslike/edgelight/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 EdgeDB-style developer experience on [PGlite](https://pglite.dev) — SDL schema, TypeScript query builder, migration CLI. No server, no concurrency, single data directory on disk.
 
 ## Install
