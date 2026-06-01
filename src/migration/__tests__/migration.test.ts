@@ -1,10 +1,11 @@
-import { existsSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { PGlite } from '@electric-sql/pglite';
 import { vector } from '@electric-sql/pglite/vector';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import type { SdlAst } from '../../parser/ast.js';
 import { parseSdl } from '../../parser/index.js';
-import { type DbSchema, diffSdlVsDb, introspectDb } from '../diff.js';
+import { type DbSchema, type SchemaChange, diffSdlVsDb, introspectDb } from '../diff.js';
+import { generateMigrationFile } from '../generate.js';
 
 const TEST_DB = './test-db-migration';
 let pglite: PGlite;
@@ -87,5 +88,42 @@ describe('diffSdlVsDb', () => {
     const drop = changes.find((c) => c.kind === 'drop_table');
     expect(drop).toBeDefined();
     expect(drop?.destructive).toBe(true);
+  });
+});
+
+describe('generateMigrationFile', () => {
+  const migrationsDir = './test-migrations';
+
+  afterEach(() => {
+    if (existsSync(migrationsDir)) rmSync(migrationsDir, { recursive: true });
+  });
+
+  it('writes a numbered SQL file for non-destructive changes', () => {
+    const changes: SchemaChange[] = [
+      { kind: 'add_table', typeName: 'Tag', tableName: 'tags', destructive: false },
+    ];
+    const filepath = generateMigrationFile(changes, migrationsDir, 1);
+    const content = readFileSync(filepath, 'utf8');
+    expect(content).toContain('CREATE TABLE tags');
+    expect(content).not.toContain('-- DESTRUCTIVE');
+  });
+
+  it('marks file with -- DESTRUCTIVE header when any change is destructive', () => {
+    const changes: SchemaChange[] = [
+      { kind: 'drop_table', tableName: 'old_table', destructive: true },
+    ];
+    const filepath = generateMigrationFile(changes, migrationsDir, 2);
+    const content = readFileSync(filepath, 'utf8');
+    expect(content.startsWith('-- DESTRUCTIVE')).toBe(true);
+    expect(content).toContain('DROP TABLE old_table');
+  });
+
+  it('names file with zero-padded sequence number', () => {
+    const seqNumber = 3;
+    const changes: SchemaChange[] = [
+      { kind: 'add_table', typeName: 'X', tableName: 'xs', destructive: false },
+    ];
+    const filepath = generateMigrationFile(changes, migrationsDir, seqNumber);
+    expect(filepath).toContain('00003-');
   });
 });
