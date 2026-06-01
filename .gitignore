@@ -28,3 +28,6 @@ docs/handoff.md
 
 # Generated query builder — rebuilt from schema.esdl via `edgelite codegen`
 dbschema/edgelite.ts
+
+# Git worktrees
+.worktrees/
