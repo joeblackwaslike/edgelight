@@ -7,7 +7,7 @@ title: Configuration
 ## Configuration Object
 
 ```typescript
-import type { Config } from 'edgelight';
+import type { Config } from 'edgelite';
 
 const config: Config = {
   // Replace with your actual configuration options
@@ -27,6 +27,6 @@ const config: Config = {
 
 | Variable | Description |
 |----------|-------------|
-| `edgelight_OPTION` | Replace with real env var if applicable |
+| `edgelite_OPTION` | Replace with real env var if applicable |
 
 Replace or remove this section if your library doesn't use environment variables.

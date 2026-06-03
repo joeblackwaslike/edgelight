@@ -4,11 +4,11 @@ title: CLI Reference
 
 # CLI Reference
 
-Remove this page if edgelight is not a CLI tool.
+Remove this page if edgelite is not a CLI tool.
 
 ## Commands
 
-### `edgelight <command>`
+### `edgelite <command>`
 
 Replace with your actual CLI command structure.
 

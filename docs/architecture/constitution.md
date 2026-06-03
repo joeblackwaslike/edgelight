@@ -4,7 +4,7 @@ title: Constitution
 
 # Constitution
 
-The non-negotiable architectural principles for edgelight.
+The non-negotiable architectural principles for edgelite.
 
 ## Core Principles
 
@@ -21,4 +21,4 @@ The non-negotiable architectural principles for edgelight.
 
 ## What This Is Not
 
-Describe what edgelight explicitly does NOT do. Scope boundaries matter.
+Describe what edgelite explicitly does NOT do. Scope boundaries matter.

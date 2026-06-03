@@ -3,8 +3,8 @@
 ## Development Setup
 
 ```bash
-git clone https://github.com/joeblackwaslike/edgelight
-cd edgelight
+git clone https://github.com/joeblackwaslike/edgelite
+cd edgelite
 pnpm install
 ```
 

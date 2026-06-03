@@ -4,7 +4,7 @@ title: User Guide
 
 # User Guide
 
-Welcome to the edgelight User Guide. This section covers everything you need to use edgelight effectively.
+Welcome to the edgelite User Guide. This section covers everything you need to use edgelite effectively.
 
 - [How It Works](./how-it-works) — core concepts and mental model
 - [Configuration](./configuration) — all configuration options

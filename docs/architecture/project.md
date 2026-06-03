@@ -5,7 +5,7 @@ title: Project Structure
 # Project Structure
 
 ```
-edgelight/
+edgelite/
 ├── src/
 │   ├── index.ts          # public API exports
 │   └── ...               # replace with your structure

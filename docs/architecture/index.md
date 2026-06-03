@@ -4,7 +4,7 @@ title: Architecture
 
 # Architecture
 
-This section documents the architectural decisions, constraints, and structure of edgelight.
+This section documents the architectural decisions, constraints, and structure of edgelite.
 
 - [Constitution](./constitution) — principles and non-negotiable constraints
 - [Data Model](./data-model) — schema and type hierarchy

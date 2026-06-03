@@ -4,7 +4,7 @@ title: Hooks Reference
 
 # Hooks Reference
 
-Remove this page if edgelight does not have a hooks/plugin system.
+Remove this page if edgelite does not have a hooks/plugin system.
 
 ## Available Hooks
 
@@ -15,7 +15,7 @@ Remove this page if edgelight does not have a hooks/plugin system.
 ## Example
 
 ```typescript
-import { createInstance } from 'edgelight';
+import { createInstance } from 'edgelite';
 
 const instance = createInstance({
   hooks: {

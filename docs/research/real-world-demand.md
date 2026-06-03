@@ -18,4 +18,4 @@ Links to Stack Overflow questions, GitHub issues, forum posts, etc.
 
 ## Our Position
 
-Why edgelight fills the gap better than existing solutions.
+Why edgelite fills the gap better than existing solutions.

@@ -2,14 +2,14 @@ import type * as Preset from '@docusaurus/preset-classic';
 import type { Config } from '@docusaurus/types';
 
 const config: Config = {
-  title: 'edgelight',
+  title: 'edgelite',
   tagline: 'edgedb meets sqlite',
   favicon: 'img/logo.svg',
 
   url: 'https://joeblackwaslike.github.io',
-  baseUrl: '/edgelight/',
+  baseUrl: '/edgelite/',
   organizationName: 'joeblackwaslike',
-  projectName: 'edgelight',
+  projectName: 'edgelite',
   trailingSlash: false,
 
   onBrokenLinks: 'throw',
@@ -47,7 +47,7 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          editUrl: 'https://github.com/joeblackwaslike/edgelight/edit/main/',
+          editUrl: 'https://github.com/joeblackwaslike/edgelite/edit/main/',
           routeBasePath: '/',
         },
         blog: false,
@@ -57,7 +57,7 @@ const config: Config = {
 
   themeConfig: {
     navbar: {
-      title: 'edgelight',
+      title: 'edgelite',
       items: [
         {
           type: 'docSidebar',
@@ -66,7 +66,7 @@ const config: Config = {
           label: 'Docs',
         },
         {
-          href: 'https://github.com/joeblackwaslike/edgelight',
+          href: 'https://github.com/joeblackwaslike/edgelite',
           label: 'GitHub',
           position: 'right',
         },
@@ -85,7 +85,7 @@ const config: Config = {
     // algolia: {
     //   appId: 'YOUR_APP_ID',
     //   apiKey: 'YOUR_SEARCH_API_KEY',
-    //   indexName: 'edgelight',
+    //   indexName: 'edgelite',
     // },
   } satisfies Preset.ThemeConfig,
 };

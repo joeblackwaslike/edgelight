@@ -14,25 +14,25 @@ title: Installation
 **pnpm (recommended)**
 
 ```bash
-pnpm add edgelight
+pnpm add edgelite
 ```
 
 **npm**
 
 ```bash
-npm install edgelight
+npm install edgelite
 ```
 
 **bun**
 
 ```bash
-bun add edgelight
+bun add edgelite
 ```
 
 ## Verify
 
 ```typescript
-import { yourExport } from 'edgelight';
+import { yourExport } from 'edgelite';
 // Replace with a real smoke-test import
 ```
 

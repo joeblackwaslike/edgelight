@@ -4,7 +4,7 @@ title: Developer Guide
 
 # Developer Guide
 
-This section is for developers working on edgelight itself.
+This section is for developers working on edgelite itself.
 
 - [Architecture](./architecture) — high-level design
 - [Data Model](./data-model) — types and schema

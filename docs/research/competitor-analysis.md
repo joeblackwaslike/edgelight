@@ -6,7 +6,7 @@ title: Competitor Analysis
 
 ## Comparison Table
 
-| Feature | edgelight | Alt A | Alt B |
+| Feature | edgelite | Alt A | Alt B |
 |---------|-----------------|-------|-------|
 | TypeScript-first | ✅ | ❌ | ⚠️ |
 | Bundle size | TBD | TBD | TBD |
@@ -14,7 +14,7 @@ title: Competitor Analysis
 
 ## Key Differentiators
 
-List what makes edgelight genuinely different, not just feature-matched.
+List what makes edgelite genuinely different, not just feature-matched.
 
 ## Migration from Competitors
 

@@ -7,7 +7,7 @@ title: Examples
 ## Basic Example
 
 ```typescript
-import { yourExport } from 'edgelight';
+import { yourExport } from 'edgelite';
 
 // Replace with a complete, copy-pasteable example
 const result = yourExport({ input: 'hello' });
@@ -17,7 +17,7 @@ console.log(result);
 ## Advanced Example
 
 ```typescript
-import { yourExport, AnotherExport } from 'edgelight';
+import { yourExport, AnotherExport } from 'edgelite';
 
 // Replace with a more complex but realistic usage example
 ```

@@ -6,7 +6,7 @@ title: API Layer
 
 ## Overview
 
-Describe the API layer of edgelight — how it exposes functionality to consumers.
+Describe the API layer of edgelite — how it exposes functionality to consumers.
 
 ## Public API Surface
 

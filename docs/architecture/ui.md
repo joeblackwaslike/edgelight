@@ -4,7 +4,7 @@ title: UI
 
 # UI
 
-Remove this section if edgelight has no user interface.
+Remove this section if edgelite has no user interface.
 
 ## Overview
 

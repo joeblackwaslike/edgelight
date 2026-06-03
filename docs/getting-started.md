@@ -7,13 +7,13 @@ title: Getting Started
 ## 1. Install
 
 ```bash
-pnpm add edgelight
+pnpm add edgelite
 ```
 
 ## 2. Basic Usage
 
 ```typescript
-import { yourMainExport } from 'edgelight';
+import { yourMainExport } from 'edgelite';
 
 // Replace with the simplest real usage example
 const result = yourMainExport({
@@ -24,7 +24,7 @@ const result = yourMainExport({
 ## 3. Configuration
 
 ```typescript
-import { yourMainExport } from 'edgelight';
+import { yourMainExport } from 'edgelite';
 
 const result = yourMainExport({
   // common configuration options

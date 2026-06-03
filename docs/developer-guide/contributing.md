@@ -9,8 +9,8 @@ This covers technical details for contributors. See the [user-facing contributin
 ## Project Setup
 
 ```bash
-git clone https://github.com/joeblackwaslike/edgelight.git
-cd edgelight
+git clone https://github.com/joeblackwaslike/edgelite.git
+cd edgelite
 pnpm install
 pnpm build
 pnpm test

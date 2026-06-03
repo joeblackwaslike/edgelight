@@ -4,13 +4,13 @@ title: Contributing
 
 # Contributing
 
-Thank you for your interest in contributing to edgelight!
+Thank you for your interest in contributing to edgelite!
 
 ## Development Setup
 
 ```bash
-git clone https://github.com/joeblackwaslike/edgelight.git
-cd edgelight
+git clone https://github.com/joeblackwaslike/edgelite.git
+cd edgelite
 pnpm install
 ```
 
