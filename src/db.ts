@@ -1,9 +1,9 @@
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
-import { PGlite } from '@electric-sql/pglite';
+import { PGlite, type Transaction } from '@electric-sql/pglite';
 import { vector } from '@electric-sql/pglite/vector';
 import type { Query } from './codegen/builders.js';
-import { EdgeLiteConcurrencyError, EdgeLiteSchemaError } from './errors.js';
+import { EdgeLiteConcurrencyError, EdgeLiteRuntimeError, EdgeLiteSchemaError } from './errors.js';
 import { applyMigrations, getAppliedMigrations, getMigrationFiles } from './migration/apply.js';
 import { execute } from './runtime/execute.js';
 import type { Db, DbOptions, InternalDb } from './types.js';
@@ -85,7 +85,62 @@ class DbImpl implements InternalDb {
     }
   }
 
+  async transaction<T>(fn: (tx: Db) => Promise<T>): Promise<T> {
+    if (this.inFlight) {
+      throw new EdgeLiteConcurrencyError(
+        'db.transaction() called while another query is in flight',
+      );
+    }
+    this.inFlight = true;
+    try {
+      return await this.pglite.transaction(async (tx) => fn(new TxDb(tx, this.path, { n: 0 })));
+    } finally {
+      this.inFlight = false;
+    }
+  }
+
   async close(): Promise<void> {
     await this.pglite.close();
+  }
+}
+
+/**
+ * Transaction-scoped Db handle. Routes run() through the active PGlite Transaction
+ * and implements nested transactions with Postgres SAVEPOINTs. Never exported.
+ */
+class TxDb implements Db {
+  readonly path: string;
+  private readonly tx: Transaction;
+  private readonly counter: { n: number };
+
+  constructor(tx: Transaction, path: string, counter: { n: number }) {
+    this.tx = tx;
+    this.path = path;
+    this.counter = counter;
+  }
+
+  // No inFlight guard: the outer DbImpl lock + PGlite's transaction mutex serialize calls.
+  async run<T>(query: unknown): Promise<T> {
+    return execute<T>(this.tx, query as Query<T>);
+  }
+
+  // Nested transactions via SAVEPOINT — counter-based names are unique, valid identifiers.
+  async transaction<T>(fn: (tx: Db) => Promise<T>): Promise<T> {
+    const name = `edgelite_sp_${this.counter.n++}`;
+    await this.tx.query(`SAVEPOINT ${name}`);
+    try {
+      const result = await fn(new TxDb(this.tx, this.path, this.counter));
+      await this.tx.query(`RELEASE SAVEPOINT ${name}`);
+      return result;
+    } catch (error) {
+      await this.tx.query(`ROLLBACK TO SAVEPOINT ${name}`);
+      throw error;
+    }
+  }
+
+  close(): Promise<void> {
+    return Promise.reject(
+      new EdgeLiteRuntimeError('Cannot close the database inside a transaction'),
+    );
   }
 }

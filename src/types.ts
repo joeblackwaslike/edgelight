@@ -16,6 +16,29 @@ export interface Db {
   // biome-ignore lint/suspicious/noExplicitAny: temporary exception for untyped query builders
   run<T>(query: any): Promise<T>;
   /* eslint-enable @typescript-eslint/no-explicit-any */
+  /**
+   * Run multiple queries atomically inside a single database transaction.
+   *
+   * The callback receives a transaction-scoped {@link Db} handle. Every `tx.run()`
+   * executes inside the transaction. If the callback resolves, the transaction
+   * commits and its resolved value is returned. If the callback throws (or
+   * rejects), the transaction is rolled back and the error propagates — no
+   * partial writes remain.
+   *
+   * The outer Db's sequential lock is held for the whole transaction, so a bare
+   * `db.run()` issued concurrently throws `EdgeLiteConcurrencyError`.
+   *
+   * Nested transactions are supported via Postgres SAVEPOINTs — a nested
+   * `tx.transaction()` that throws rolls back only its own writes. Calling
+   * `tx.close()` inside the callback throws `EdgeLiteRuntimeError`.
+   *
+   * @example
+   * await db.transaction(async (tx) => {
+   *   await tx.run(insertNode);
+   *   await tx.run(insertEdge);
+   * });
+   */
+  transaction<T>(fn: (tx: Db) => Promise<T>): Promise<T>;
   /** Graceful shutdown — flushes PGlite and releases the data directory lock. */
   close(): Promise<void>;
   /** Absolute path to the PGlite data directory. */
