@@ -161,23 +161,27 @@ class TxDb implements Db {
       );
     }
     this.inFlight = true;
-    const name = `edgelite_sp_${this.counter.n++}`;
-    await this.tx.query(`SAVEPOINT ${name}`);
-    const child = new TxDb(this.tx, this.path, this.counter);
     try {
-      const result = await fn(child);
-      await this.tx.query(`RELEASE SAVEPOINT ${name}`);
-      return result;
-    } catch (error) {
-      // Preserve the original error even if the rollback itself fails.
+      const name = `edgelite_sp_${this.counter.n++}`;
+      await this.tx.query(`SAVEPOINT ${name}`);
+      const child = new TxDb(this.tx, this.path, this.counter);
       try {
-        await this.tx.query(`ROLLBACK TO SAVEPOINT ${name}`);
-      } catch {
-        // Intentionally suppressed — the original error below is the meaningful one.
+        const result = await fn(child);
+        await this.tx.query(`RELEASE SAVEPOINT ${name}`);
+        return result;
+      } catch (error) {
+        // Preserve the original error even if the rollback itself fails.
+        try {
+          await this.tx.query(`ROLLBACK TO SAVEPOINT ${name}`);
+        } catch {
+          // Intentionally suppressed — the original error below is the meaningful one.
+        }
+        throw error;
+      } finally {
+        child.deactivate();
       }
-      throw error;
     } finally {
-      child.deactivate();
+      // Reset even if SAVEPOINT acquisition itself throws, so the handle can't leak locked.
       this.inFlight = false;
     }
   }
