@@ -119,6 +119,16 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ['node_modules/**', 'dist/**', 'coverage/**', '*.config.mjs', 'vitest.config.ts'],
+    ignores: [
+      'node_modules/**',
+      'dist/**',
+      'coverage/**',
+      '*.config.mjs',
+      'vitest.config.ts',
+      // Generated query builder — excluded from tsconfig, so typed linting can't resolve it.
+      'dbschema/**',
+      // Local git worktrees (gitignored) — not part of the project.
+      '.worktrees/**',
+    ],
   },
 );

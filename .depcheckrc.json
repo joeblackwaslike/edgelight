@@ -1,0 +1,13 @@
+{
+  "ignores": [
+    "react",
+    "react-dom",
+    "@docusaurus/types",
+    "@electric-sql/pglite",
+    "@vitest/coverage-v8",
+    "docusaurus-plugin-llms",
+    "docusaurus-plugin-typedoc",
+    "typedoc",
+    "eslint-import-resolver-typescript"
+  ]
+}
