@@ -14,25 +14,25 @@ title: Installation
 **pnpm (recommended)**
 
 ```bash
-pnpm add edgelite
+pnpm add @edgelite/edgelite
 ```
 
 **npm**
 
 ```bash
-npm install edgelite
+npm install @edgelite/edgelite
 ```
 
 **bun**
 
 ```bash
-bun add edgelite
+bun add @edgelite/edgelite
 ```
 
 ## Verify
 
 ```typescript
-import { yourExport } from 'edgelite';
+import { yourExport } from '@edgelite/edgelite';
 // Replace with a real smoke-test import
 ```
 

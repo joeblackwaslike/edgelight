@@ -1,6 +1,6 @@
 # EdgeLite
 
-[![npm](https://img.shields.io/npm/v/edgelite)](https://npmjs.com/package/edgelite)
+[![npm](https://img.shields.io/npm/v/@edgelite/edgelite)](https://npmjs.com/package/@edgelite/edgelite)
 [![CI](https://github.com/joeblackwaslike/edgelite/actions/workflows/ci.yml/badge.svg)](https://github.com/joeblackwaslike/edgelite/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -9,7 +9,7 @@ EdgeDB-style developer experience on [PGlite](https://pglite.dev) — SDL schema
 ## Install
 
 ```bash
-bun add edgelite
+bun add @edgelite/edgelite
 ```
 
 ## 5-minute quickstart
@@ -46,7 +46,7 @@ bunx edgelite migration apply    # applies it to your local PGlite DB
 ### 4. Query
 
 ```typescript
-import { openDb } from 'edgelite';
+import { openDb } from '@edgelite/edgelite';
 import e from './dbschema/edgelite.js';
 
 const db = await openDb('./my-db', './dbschema/schema.esdl', { autoMigrate: true });
