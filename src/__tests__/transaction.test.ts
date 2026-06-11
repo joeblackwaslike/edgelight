@@ -149,6 +149,18 @@ describe('db.transaction', () => {
     expect(await countAllNodes(db)).toBe(1);
   });
 
+  it('serializes the tx handle: overlapping tx.run() calls throw', async () => {
+    await db.transaction(async (tx) => {
+      const pending = tx.run(insertNode(makeNodeData({ content_hash: 'c1' })));
+      await expect(tx.run(insertNode(makeNodeData({ content_hash: 'c2' })))).rejects.toThrow(
+        EdgeLiteConcurrencyError,
+      );
+      await pending;
+    });
+
+    expect(await countAllNodes(db)).toBe(1);
+  });
+
   it('throws when close() is called inside a transaction', async () => {
     await db.transaction(async (tx) => {
       await expect(tx.close()).rejects.toThrow(EdgeLiteRuntimeError);

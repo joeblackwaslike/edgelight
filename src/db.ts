@@ -112,6 +112,7 @@ class TxDb implements Db {
   readonly path: string;
   private readonly tx: Transaction;
   private readonly counter: { n: number };
+  private inFlight = false;
 
   constructor(tx: Transaction, path: string, counter: { n: number }) {
     this.tx = tx;
@@ -119,13 +120,28 @@ class TxDb implements Db {
     this.counter = counter;
   }
 
-  // No inFlight guard: the outer DbImpl lock + PGlite's transaction mutex serialize calls.
+  // Mirror DbImpl's sequential guard: a concurrent call on the same handle throws.
+  // While a nested transaction is open, the parent handle stays locked too.
   async run<T>(query: unknown): Promise<T> {
-    return execute<T>(this.tx, query as Query<T>);
+    if (this.inFlight) {
+      throw new EdgeLiteConcurrencyError('db.run() called while another query is in flight');
+    }
+    this.inFlight = true;
+    try {
+      return await execute<T>(this.tx, query as Query<T>);
+    } finally {
+      this.inFlight = false;
+    }
   }
 
   // Nested transactions via SAVEPOINT — counter-based names are unique, valid identifiers.
   async transaction<T>(fn: (tx: Db) => Promise<T>): Promise<T> {
+    if (this.inFlight) {
+      throw new EdgeLiteConcurrencyError(
+        'db.transaction() called while another query is in flight',
+      );
+    }
+    this.inFlight = true;
     const name = `edgelite_sp_${this.counter.n++}`;
     await this.tx.query(`SAVEPOINT ${name}`);
     try {
@@ -133,8 +149,15 @@ class TxDb implements Db {
       await this.tx.query(`RELEASE SAVEPOINT ${name}`);
       return result;
     } catch (error) {
-      await this.tx.query(`ROLLBACK TO SAVEPOINT ${name}`);
+      // Preserve the original error even if the rollback itself fails.
+      try {
+        await this.tx.query(`ROLLBACK TO SAVEPOINT ${name}`);
+      } catch {
+        // Intentionally suppressed — the original error below is the meaningful one.
+      }
       throw error;
+    } finally {
+      this.inFlight = false;
     }
   }
 
