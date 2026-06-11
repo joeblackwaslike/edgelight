@@ -187,3 +187,29 @@ describe('db.transaction', () => {
     });
   });
 });
+
+describe('transaction handle lifecycle', () => {
+  it('rejects use of a tx handle retained after the transaction ends', async () => {
+    let captured: Db | undefined;
+    await db.transaction(async (tx) => {
+      captured = tx;
+      await tx.run(insertNode(makeNodeData({ content_hash: 'a' })));
+    });
+
+    await expect(captured?.run(selectNodes({ id: true }))).rejects.toThrow(EdgeLiteRuntimeError);
+  });
+
+  it('rejects use of a nested tx handle retained after its savepoint scope ends', async () => {
+    let capturedInner: Db | undefined;
+    await db.transaction(async (tx) => {
+      await tx.transaction(async (inner) => {
+        capturedInner = inner;
+        await inner.run(insertNode(makeNodeData({ content_hash: 'b' })));
+      });
+    });
+
+    await expect(capturedInner?.run(selectNodes({ id: true }))).rejects.toThrow(
+      EdgeLiteRuntimeError,
+    );
+  });
+});

@@ -93,7 +93,15 @@ class DbImpl implements InternalDb {
     }
     this.inFlight = true;
     try {
-      return await this.pglite.transaction(async (tx) => fn(new TxDb(tx, this.path, { n: 0 })));
+      return await this.pglite.transaction(async (tx) => {
+        const txDb = new TxDb(tx, this.path, { n: 0 });
+        try {
+          return await fn(txDb);
+        } finally {
+          // Invalidate the handle so a retained reference can't be used post-commit.
+          txDb.deactivate();
+        }
+      });
     } finally {
       this.inFlight = false;
     }
@@ -116,6 +124,7 @@ class TxDb implements Db {
   private readonly tx: Transaction;
   private readonly counter: { n: number };
   private inFlight = false;
+  private active = true;
 
   constructor(tx: Transaction, path: string, counter: { n: number }) {
     this.tx = tx;
@@ -123,9 +132,15 @@ class TxDb implements Db {
     this.counter = counter;
   }
 
+  /** Invalidate this handle once its transaction/savepoint scope has ended. */
+  deactivate(): void {
+    this.active = false;
+  }
+
   // Mirror DbImpl's sequential guard: a concurrent call on the same handle throws.
   // While a nested transaction is open, the parent handle stays locked too.
   async run<T>(query: unknown): Promise<T> {
+    this.assertActive();
     if (this.inFlight) {
       throw new EdgeLiteConcurrencyError('db.run() called while another query is in flight');
     }
@@ -139,6 +154,7 @@ class TxDb implements Db {
 
   // Nested transactions via SAVEPOINT — counter-based names are unique, valid identifiers.
   async transaction<T>(fn: (tx: Db) => Promise<T>): Promise<T> {
+    this.assertActive();
     if (this.inFlight) {
       throw new EdgeLiteConcurrencyError(
         'db.transaction() called while another query is in flight',
@@ -147,8 +163,9 @@ class TxDb implements Db {
     this.inFlight = true;
     const name = `edgelite_sp_${this.counter.n++}`;
     await this.tx.query(`SAVEPOINT ${name}`);
+    const child = new TxDb(this.tx, this.path, this.counter);
     try {
-      const result = await fn(new TxDb(this.tx, this.path, this.counter));
+      const result = await fn(child);
       await this.tx.query(`RELEASE SAVEPOINT ${name}`);
       return result;
     } catch (error) {
@@ -160,6 +177,7 @@ class TxDb implements Db {
       }
       throw error;
     } finally {
+      child.deactivate();
       this.inFlight = false;
     }
   }
@@ -168,5 +186,11 @@ class TxDb implements Db {
     return Promise.reject(
       new EdgeLiteRuntimeError('Cannot close the database inside a transaction'),
     );
+  }
+
+  private assertActive(): void {
+    if (!this.active) {
+      throw new EdgeLiteRuntimeError('Transaction has already ended');
+    }
   }
 }

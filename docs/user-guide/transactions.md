@@ -71,3 +71,5 @@ await db.transaction(async (tx) => {
 
 - `tx.close()` inside a transaction throws `EdgeLiteRuntimeError` — close the
   database after the transaction returns, via `db.close()` / `closeDb(db)`.
+- The `tx` handle is only valid inside the callback. Holding onto it and calling
+  `tx.run()` after `db.transaction()` has resolved throws `EdgeLiteRuntimeError`.

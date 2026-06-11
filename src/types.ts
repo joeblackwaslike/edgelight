@@ -32,6 +32,10 @@ export interface Db {
    * `tx.transaction()` that throws rolls back only its own writes. Calling
    * `tx.close()` inside the callback throws `EdgeLiteRuntimeError`.
    *
+   * The `tx` handle is only valid for the duration of the callback. Using a
+   * retained reference after the transaction resolves throws
+   * `EdgeLiteRuntimeError` rather than hitting a released PGlite transaction.
+   *
    * @example
    * await db.transaction(async (tx) => {
    *   await tx.run(insertNode);
