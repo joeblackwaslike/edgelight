@@ -60,6 +60,15 @@ async function countAllNodes(db: Db): Promise<number> {
   return rows.length;
 }
 
+/** A promise plus its resolver, for holding a transaction open mid-test. */
+function createGate(): { gate: Promise<void>; release: () => void } {
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  return { gate, release };
+}
+
 let db: Db;
 
 beforeEach(async () => {
@@ -105,10 +114,7 @@ describe('db.transaction', () => {
   });
 
   it('holds the sequential lock: a bare db.run() during a transaction throws', async () => {
-    let release!: () => void;
-    const gate = new Promise<void>((resolve) => {
-      release = resolve;
-    });
+    const { gate, release } = createGate();
 
     const txPromise = db.transaction(async (tx) => {
       await tx.run(insertNode(makeNodeData({ content_hash: 'held' })));
@@ -159,6 +165,20 @@ describe('db.transaction', () => {
     });
 
     expect(await countAllNodes(db)).toBe(1);
+  });
+
+  it('rejects an outer db.close() while a transaction is in flight', async () => {
+    const { gate, release } = createGate();
+
+    const txPromise = db.transaction(async (tx) => {
+      await tx.run(insertNode(makeNodeData({ content_hash: 'held' })));
+      await gate;
+    });
+
+    await expect(db.close()).rejects.toThrow(EdgeLiteConcurrencyError);
+
+    release();
+    await txPromise;
   });
 
   it('throws when close() is called inside a transaction', async () => {

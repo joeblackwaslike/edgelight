@@ -100,6 +100,9 @@ class DbImpl implements InternalDb {
   }
 
   async close(): Promise<void> {
+    if (this.inFlight) {
+      throw new EdgeLiteConcurrencyError('db.close() called while another query is in flight');
+    }
     await this.pglite.close();
   }
 }
