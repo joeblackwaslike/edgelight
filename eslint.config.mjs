@@ -53,6 +53,11 @@ export default tseslint.config(
       ],
       'sonarjs/cognitive-complexity': ['error', 10],
       'sonarjs/no-duplicate-string': ['error', { threshold: 3 }],
+      // TypeScript 6's type representation makes these sonarjs rules emit false
+      // positives (and they duplicate tsc's own type checking). Re-enable once
+      // eslint-plugin-sonarjs officially supports TS 6.
+      'sonarjs/function-return-type': 'off',
+      'sonarjs/argument-type': 'off',
       'max-lines-per-function': [
         'warn',
         // biome-ignore lint/style/useNamingConvention: ESLint rule option name is IIFEs (not camelCase)
