@@ -14,6 +14,7 @@ const sidebars = {
         'user-guide/how-it-works',
         'user-guide/configuration',
         'user-guide/features',
+        'user-guide/transactions',
       ],
     },
     {

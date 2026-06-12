@@ -1,9 +1,9 @@
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
-import { PGlite } from '@electric-sql/pglite';
+import { PGlite, type Transaction } from '@electric-sql/pglite';
 import { vector } from '@electric-sql/pglite/vector';
 import type { Query } from './codegen/builders.js';
-import { EdgeLiteConcurrencyError, EdgeLiteSchemaError } from './errors.js';
+import { EdgeLiteConcurrencyError, EdgeLiteRuntimeError, EdgeLiteSchemaError } from './errors.js';
 import { applyMigrations, getAppliedMigrations, getMigrationFiles } from './migration/apply.js';
 import { execute } from './runtime/execute.js';
 import type { Db, DbOptions, InternalDb } from './types.js';
@@ -85,7 +85,116 @@ class DbImpl implements InternalDb {
     }
   }
 
+  async transaction<T>(fn: (tx: Db) => Promise<T>): Promise<T> {
+    if (this.inFlight) {
+      throw new EdgeLiteConcurrencyError(
+        'db.transaction() called while another query is in flight',
+      );
+    }
+    this.inFlight = true;
+    try {
+      return await this.pglite.transaction(async (tx) => {
+        const txDb = new TxDb(tx, this.path, { n: 0 });
+        try {
+          return await fn(txDb);
+        } finally {
+          // Invalidate the handle so a retained reference can't be used post-commit.
+          txDb.deactivate();
+        }
+      });
+    } finally {
+      this.inFlight = false;
+    }
+  }
+
   async close(): Promise<void> {
+    if (this.inFlight) {
+      throw new EdgeLiteConcurrencyError('db.close() called while another query is in flight');
+    }
     await this.pglite.close();
+  }
+}
+
+/**
+ * Transaction-scoped Db handle. Routes run() through the active PGlite Transaction
+ * and implements nested transactions with Postgres SAVEPOINTs. Never exported.
+ */
+class TxDb implements Db {
+  readonly path: string;
+  private readonly tx: Transaction;
+  private readonly counter: { n: number };
+  private inFlight = false;
+  private active = true;
+
+  constructor(tx: Transaction, path: string, counter: { n: number }) {
+    this.tx = tx;
+    this.path = path;
+    this.counter = counter;
+  }
+
+  /** Invalidate this handle once its transaction/savepoint scope has ended. */
+  deactivate(): void {
+    this.active = false;
+  }
+
+  // Mirror DbImpl's sequential guard: a concurrent call on the same handle throws.
+  // While a nested transaction is open, the parent handle stays locked too.
+  async run<T>(query: unknown): Promise<T> {
+    this.assertActive();
+    if (this.inFlight) {
+      throw new EdgeLiteConcurrencyError('db.run() called while another query is in flight');
+    }
+    this.inFlight = true;
+    try {
+      return await execute<T>(this.tx, query as Query<T>);
+    } finally {
+      this.inFlight = false;
+    }
+  }
+
+  // Nested transactions via SAVEPOINT — counter-based names are unique, valid identifiers.
+  async transaction<T>(fn: (tx: Db) => Promise<T>): Promise<T> {
+    this.assertActive();
+    if (this.inFlight) {
+      throw new EdgeLiteConcurrencyError(
+        'db.transaction() called while another query is in flight',
+      );
+    }
+    this.inFlight = true;
+    try {
+      const name = `edgelite_sp_${this.counter.n++}`;
+      await this.tx.query(`SAVEPOINT ${name}`);
+      const child = new TxDb(this.tx, this.path, this.counter);
+      try {
+        const result = await fn(child);
+        await this.tx.query(`RELEASE SAVEPOINT ${name}`);
+        return result;
+      } catch (error) {
+        // Preserve the original error even if the rollback itself fails.
+        try {
+          await this.tx.query(`ROLLBACK TO SAVEPOINT ${name}`);
+        } catch {
+          // Intentionally suppressed — the original error below is the meaningful one.
+        }
+        throw error;
+      } finally {
+        child.deactivate();
+      }
+    } finally {
+      // Reset even if SAVEPOINT acquisition itself throws, so the handle can't leak locked.
+      this.inFlight = false;
+    }
+  }
+
+  close(): Promise<void> {
+    return Promise.reject(
+      new EdgeLiteRuntimeError('Cannot close the database inside a transaction'),
+    );
+  }
+
+  private assertActive(): void {
+    if (!this.active) {
+      throw new EdgeLiteRuntimeError('Transaction has already ended');
+    }
   }
 }
