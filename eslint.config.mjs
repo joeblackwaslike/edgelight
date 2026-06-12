@@ -108,6 +108,8 @@ export default tseslint.config(
         },
       ],
       'unicorn/no-null': 'off',
+      // .sort() on freshly-created arrays is fine; toSorted() would require an ES2023 lib bump.
+      'unicorn/no-array-sort': 'off',
       'unicorn/filename-case': ['error', { case: 'kebabCase', multipleFileExtensions: true }],
       'unicorn/no-process-exit': 'off',
     },
@@ -116,6 +118,8 @@ export default tseslint.config(
     files: ['src/**/__tests__/**/*.ts', 'src/**/*.test.ts'],
     rules: {
       'import-x/no-relative-parent-imports': 'off',
+      // `__tests__` is the conventional vitest/jest directory name (not kebab-case).
+      'unicorn/filename-case': 'off',
     },
   },
   {
