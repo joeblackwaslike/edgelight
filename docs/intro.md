@@ -9,7 +9,7 @@ description: edgedb meets sqlite
 
 > **edgedb meets sqlite**
 
-[![npm](https://img.shields.io/npm/v/edgelite?color=blue)](https://npmjs.com/package/edgelite)
+[![npm](https://img.shields.io/npm/v/@edgelite/edgelite?color=blue)](https://npmjs.com/package/@edgelite/edgelite)
 [![CI](https://github.com/joeblackwaslike/edgelite/actions/workflows/ci.yml/badge.svg)](https://github.com/joeblackwaslike/edgelite/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/joeblackwaslike/edgelite/blob/main/LICENSE)
 
@@ -42,11 +42,11 @@ Replace this with your one-sentence value proposition. What does edgelite do tha
 ## Install Now
 
 ```bash
-pnpm add edgelite
+pnpm add @edgelite/edgelite
 ```
 
 ```typescript
-import { yourExport } from 'edgelite';
+import { yourExport } from '@edgelite/edgelite';
 
 // Replace with the simplest possible usage example
 const result = yourExport({ input: 'value' });
