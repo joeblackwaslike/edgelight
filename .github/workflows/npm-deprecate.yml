@@ -1,0 +1,33 @@
+name: npm deprecate
+
+# Manually deprecate (or undeprecate) a published npm package/version using the
+# repo's NPM_TOKEN. Handy for steering users from the old unscoped `edgelite`
+# package to `@edgelite/edgelite`. Undeprecate by passing an empty message.
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Package name, optionally with a version range (e.g. edgelite or edgelite@<0.2.0)'
+        required: true
+        default: edgelite
+      message:
+        description: 'Deprecation message (empty string un-deprecates)'
+        required: true
+        default: 'Moved to @edgelite/edgelite — install that instead.'
+
+jobs:
+  deprecate:
+    name: Deprecate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+
+      - name: npm deprecate
+        run: npm deprecate "$PACKAGE" "$MESSAGE"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PACKAGE: ${{ inputs.package }}
+          MESSAGE: ${{ inputs.message }}
