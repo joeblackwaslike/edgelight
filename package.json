@@ -64,7 +64,7 @@
     "@docusaurus/core": "^3.8.0",
     "@docusaurus/preset-classic": "^3.8.0",
     "@docusaurus/types": "^3.8.0",
-    "@types/node": "^22.0.0",
+    "@types/node": "^25.9.3",
     "@vitest/coverage-v8": "^3.0.0",
     "depcheck": "^1.4.7",
     "docusaurus-plugin-llms": "^0.4.0",
