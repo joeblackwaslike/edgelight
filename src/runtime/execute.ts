@@ -1,5 +1,4 @@
 /* eslint-disable import-x/no-relative-parent-imports */
-import type { PGlite } from '@electric-sql/pglite';
 import type { Query } from '../codegen/builders.js';
 import { EdgeLiteRuntimeError } from '../errors.js';
 import { compileQuery } from './compile.js';
@@ -7,13 +6,15 @@ import { mapResult } from './map.js';
 
 const ERROR_SQL_PREVIEW_LENGTH = 80;
 
-export async function execute<T>(pglite: PGlite, query: Query<T>): Promise<T> {
+/** Minimal surface execute() needs. Satisfied by PGlite and PGlite Transaction. */
+export interface QueryExecutor {
+  query(sql: string, parameters?: unknown[]): Promise<{ rows: Record<string, unknown>[] }>;
+}
+
+export async function execute<T>(executor: QueryExecutor, query: Query<T>): Promise<T> {
   const compiled = compileQuery(query);
   try {
-    const result = await pglite.query<Record<string, unknown>>(
-      compiled.sql,
-      compiled.params,
-    );
+    const result = await executor.query(compiled.sql, compiled.params);
 
     if (query.kind === 'count') {
       return ((result.rows[0]?.count as number | undefined) ?? 0) as T;

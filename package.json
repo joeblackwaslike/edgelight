@@ -43,7 +43,7 @@
     "format": "biome format --write .",
     "typecheck": "tsc --noEmit",
     "check": "pnpm typecheck && pnpm lint",
-    "depcheck": "depcheck",
+    "depcheck": "depcheck --config=.depcheckrc.json",
     "docs:start": "docusaurus start",
     "docs:build": "docusaurus build",
     "docs:serve": "docusaurus serve",
@@ -88,9 +88,6 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": ["@biomejs/biome", "core-js", "esbuild", "unrs-resolver"]
-  },
-  "depcheck": {
-    "ignores": ["react", "react-dom", "@docusaurus/types", "@electric-sql/pglite"]
   },
   "packageManager": "pnpm@11.0.8",
   "lint-staged": {

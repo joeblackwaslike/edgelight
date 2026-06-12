@@ -169,7 +169,9 @@ function compileFilter(expr: FilterExpr, alias: string, parameters: unknown[]): 
         .join(' AND ');
     }
     case 'any': {
-      return expr.exprs.map((subExpr) => `(${compileFilter(subExpr, alias, parameters)})`).join(' OR ');
+      return expr.exprs
+        .map((subExpr) => `(${compileFilter(subExpr, alias, parameters)})`)
+        .join(' OR ');
     }
   }
 }
