@@ -44,7 +44,7 @@
     }
   },
   "files": {
-    "ignore": ["node_modules", "dist", "coverage", "*.generated.ts"]
+    "ignore": ["node_modules", "dist", "coverage", "*.generated.ts", "package.json"]
   },
   "overrides": [
     {
