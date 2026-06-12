@@ -83,7 +83,7 @@
     "typedoc": "^0.28.19",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.32.1",
-    "vitest": "^3.0.0"
+    "vitest": "^4.1.8"
   },
   "author": "Joe Black <me@joeblack.nyc>",
   "license": "MIT",
