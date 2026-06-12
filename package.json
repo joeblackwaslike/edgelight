@@ -1,6 +1,6 @@
 {
   "name": "@edgelite/edgelite",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "edgedb meets sqlite",
   "type": "module",
   "publishConfig": {
@@ -25,7 +25,12 @@
     "@electric-sql/pglite": "^0.2.0",
     "peggy": "^5.1.0"
   },
-  "files": ["dist", "cli", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "cli",
+    "README.md",
+    "LICENSE"
+  ],
   "keywords": [
     "edgedb",
     "pglite",
@@ -90,13 +95,20 @@
     "node": ">=22"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["@biomejs/biome", "core-js", "esbuild", "unrs-resolver"]
+    "onlyBuiltDependencies": [
+      "@biomejs/biome",
+      "core-js",
+      "esbuild",
+      "unrs-resolver"
+    ]
   },
   "packageManager": "pnpm@11.0.8",
   "lint-staged": {
     "*.{ts,js,json,md}": [
       "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
     ],
-    "*.ts": ["eslint --fix --max-warnings=0 --no-warn-ignored"]
+    "*.ts": [
+      "eslint --fix --max-warnings=0 --no-warn-ignored"
+    ]
   }
 }
