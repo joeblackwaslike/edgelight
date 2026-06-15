@@ -76,7 +76,7 @@
     "eslint-plugin-sonarjs": "^4.0.3",
     "eslint-plugin-unicorn": "^65.0.1",
     "husky": "^9.1.7",
-    "lint-staged": "^15.5.2",
+    "lint-staged": "^17.0.7",
     "react": "^18.0.0",
     "react-dom": "^19.2.7",
     "tsx": "^4.19.2",
