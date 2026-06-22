@@ -74,7 +74,7 @@
     "eslint-plugin-import-x": "^4.16.2",
     "eslint-plugin-no-secrets": "^2.3.3",
     "eslint-plugin-sonarjs": "^4.0.3",
-    "eslint-plugin-unicorn": "^65.0.1",
+    "eslint-plugin-unicorn": "^68.0.0",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.2",
     "react": "^18.0.0",
